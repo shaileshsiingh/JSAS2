@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Products</title>
+</head>
+<body>
+	<form id="product-form">
+		<label for="price">Price:</label>
+		<input type="number" id="price" name="price" required>
+
+		<label for="item">Item:</label>
+		<input type="text" id="item" name="item" required>
+
+		<label for="category">Category:</label>
+		<select id="category" name="category" required>
+			<option value="">Select a category</option>
+			<option value="Electronics">Electronics</option>
+			<option value="Food">Food</option>
+			<option value="Skincare">Skincare</option>
+		</select>
+
+		<input type="submit" value="Submit">
+	</form>
+	<h1>Products</h1>
+	<h3>Electronics</h3>
+	<ul id="electronics-list"></ul>
+	<h3>Food</h3>
+	<ul id="food-list"></ul>
+	<h3>Skincare</h3>
+	<ul id="skincare-list"></ul>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		const form = document.getElementById('product-form');
+		form.addEventListener('submit', function(event) {
+			event.preventDefault();
+			const price = document.getElementById('price').value;
+			const item = document.getElementById('item').value;
+			const category = document.getElementById('category').value;
+			if (category === 'Electronics') {
+				const electronicsList = document.getElementById('electronics-list');
+				const newItem = document.createElement('li');
+				newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+				electronicsList.appendChild(newItem);
+				addProduct(price, item, category);
+			} else if (category === 'Food') {
+				const foodList = document.getElementById('food-list');
+				const newItem = document.createElement('li');
+				newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+				foodList.appendChild(newItem);
+				addProduct(price, item, category);
+			} else if (category === 'Skincare') {
+				const skincareList = document.getElementById('skincare-list');
+				const newItem = document.createElement('li');
+				newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+				skincareList.appendChild(newItem);
+				addProduct(price, item, category);
+			}
+			form.reset();
+		});
+
+		document.addEventListener('click', function(event) {
+			if (event.target.classList.contains('delete-btn')) {
+				event.target.parentNode.remove();
+				const _id = event.target.parentNode.innerText.split('-')[1].trim();
+				deleteProduct(_id);
+			}
+		});
+
+		function addProduct(price, item, category) {
+			axios.post('https://crudcrud.com/api/f3a69cb2710544aeb198ab83a91b25f4/products', {price, item, category})
+				.then(response => console.log(response.data))
+				.catch(error => console.error(error));
+		}
+
+		function deleteProduct(_id) {
+			axios.delete(`https://crudcrud.com/api/f3a69cb2710544aeb198ab83a91b25f4/products/${_id}`)
+				.then(response => {
+                deleteProduct(response.data._id)
+                console.log(response.data)
+                })
+				.catch(error => console.error(error));
+		}
+
+		function displayProducts() {
+			axios.get('https://crudcrud.com/api/f3a69cb2710544aeb198ab83a91b25f4/products')
+				.then(response => {
+					const products = response.data;
+products.forEach(product => {
+const { price, item, category } = product;
+if (category === 'Electronics') {
+const electronicsList = document.getElementById('electronics-list');
+const newItem = document.createElement('li');
+newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+electronicsList.appendChild(newItem);
+} else if (category === 'Food') {
+const foodList = document.getElementById('food-list');
+const newItem = document.createElement('li');
+newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+foodList.appendChild(newItem);
+} else if (category === 'Skincare') {
+const skincareList = document.getElementById('skincare-list');
+const newItem = document.createElement('li');
+newItem.innerHTML = `Rs${price} - ${item} <button class="delete-btn">Delete</button>`;
+skincareList.appendChild(newItem);
+}
+});
+})
+.catch(error => console.error(error));
+}
+displayProducts();
+</script>
+</body>
+</html>
